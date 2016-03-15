@@ -64,3 +64,18 @@ class TestGroupExtractor(unittest.TestCase):
         game.board[5][4] = 4
         assert game.get_winners() == set([1, 2, 3, 4])
 
+    def test_full(self):
+        game = pentago_board.PentagoBoard(3, 3, 5)
+        assert not game.is_full()
+        for i in range(81):
+            game.board[i / 9][i % 9] = 2
+        assert game.is_full()
+        game.board[0][0] = 0
+        assert not game.is_full()
+
+
+
+
+
+
+

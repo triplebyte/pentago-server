@@ -9,7 +9,11 @@ class PentagoBoard(object):
 		dim = block_width * block_count
 		self.board = [[0]*dim for _ in range(dim)]
 
-	
+	def set_from_array(self, array):
+		dim = self.block_width * self.block_count
+		for i, v in enumerate(array):
+			self.board[i / dim][i % dim] = v
+
 	def get_winners(self):
 		winners = set()
 		for y in range(len(self.board)):
@@ -75,6 +79,9 @@ class PentagoBoard(object):
 					dx = (self.block_width - 1 - y)
 					dy = x
 				self.board[oy + y][ox + x] = board[oy + dy][ox + dx]
+	
+	def is_full(self):
+		return not any([0 in l for l in self.board]) 
 
 	def __str__(self):
 		return '\n'.join([', '.join([str(c) for c in l]) for l in self.board])

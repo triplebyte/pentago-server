@@ -36,6 +36,7 @@ class Game(object):
         self.game_id = game_id 
         self.player_count = player_count
         self.players = []
+        self.active_player = None
 
     def add_player(self, player):
         assert len(self.players) <  self.player_count 
@@ -76,34 +77,43 @@ class Game(object):
         self.advance_player()
 
     def advance_player(self):
-        i = self.players.index(self.active_player)
-        i = (i + 1) % len(self.players)
-        self.active_player = self.players[i]
-        self.do_active_player_turn()
+        if self.active_player in self.players:
+            i = self.players.index(self.active_player)
+            i = (i + 1) % len(self.players)
+            self.active_player = self.players[i]
+            self.do_active_player_turn()
 
 
     def send_message_to_players(self, message):
         for p in self.players:
             p.send_message(message) 
     
+    def handle_play_message(self, message, player):
+        assert len(message) == 1
+        px, py, rx, ry, r = message[0].split(" ")
+        if self.board.make_move(int(px), int(py), player.piece, int(rx), int(ry), r):
+            self.player_timeout.cancel()
+            winners = self.board.get_winners()
+            if len(winners):
+                self.send_message_to_players(['GAME_OVER'] + [self.players[p-1].name for p in winners])       
+                
+                #and start a new one!
+                self.start_game()
+            elif self.board.is_full():
+                self.send_message_to_players(['GAME_DRAW'])
+
+                self.start_game()
+            else:
+                self.advance_player()
+
+        else:
+            player.send_message(["BAD_MOVE"])
+
+
     def message_recieved(self, action, message, player):
         if player == self.active_player:
             if action == "PLAY":
-                assert len(message) == 1
-                px, py, rx, ry, r = message[0].split(" ")
-                if self.board.make_move(int(px), int(py), player.piece, int(rx), int(ry), r):
-                    self.player_timeout.cancel()
-                    winners = self.board.get_winners()
-                    if len(winners):
-                        self.send_message_to_players(['GAME_OVER'] + [self.players[p-1].name for p in winners])       
-                        
-                        #and start a new one!
-                        self.start_game()
-                    else:
-                        self.advance_player()
-
-                else:
-                    player.send_message(["BAD_MOVE"]) 
+                self.handle_play_message(message, player)   
 
 class Manager(object):
     def __init__(self):
@@ -129,6 +139,9 @@ class Manager(object):
 manager = Manager()
 
 class PentagoServer(basic.LineReceiver):
+    
+    delimiter = '\n'
+
     def connectionMade(self):
         print "Client joined: %s" % (self,)
         self.factory.clients.append(self)
@@ -155,7 +168,7 @@ class PentagoServer(basic.LineReceiver):
             self.lines.append(line)
 
     def message_recieved(self, action, message):
-        logging.debug("message_recieved %s %s" % (type, message))  
+        logging.debug("message_recieved %s %s" % (action, message))  
         if not self.player or not self.game :
             assert action == "JOIN" and len(message) == 2, "Bad join message"
             player_name = message[0]
