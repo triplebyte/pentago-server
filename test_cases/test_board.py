@@ -2,6 +2,7 @@ import unittest
 import math
 import copy
 import pentago_board
+import random
 
 class TestGroupExtractor(unittest.TestCase):
     def setUp(self):
@@ -68,7 +69,8 @@ class TestGroupExtractor(unittest.TestCase):
         game = pentago_board.PentagoBoard(3, 3, 5)
         assert not game.is_full()
         for i in range(81):
-            game.board[i / 9][i % 9] = 2
+            game.board[i / 9][i % 9] = random.choice([1,2,3,4])
+        print game  
         assert game.is_full()
         game.board[0][0] = 0
         assert not game.is_full()

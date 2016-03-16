@@ -1,5 +1,7 @@
 import logging 
 import copy 
+from termcolor import colored
+
 
 class PentagoBoard(object):
 	def __init__(self, block_width, block_count, winning_length):
@@ -83,12 +85,23 @@ class PentagoBoard(object):
 	def is_full(self):
 		return not any([0 in l for l in self.board]) 
 
+	def group_by(self, array, n, separator):
+		rtn = array[0:n]
+		for i in range(n, len(array), n):
+			rtn.append(separator)
+			rtn.extend(array[i:i+n])
+		return rtn
+
 	def __str__(self):
-		return '\n'.join([', '.join([str(c) for c in l]) for l in self.board])
+		colors = {0: 'grey', 1:'red', 2:'green', 3:'yellow', 4:'blue'}
+		b = [' '.join(self.group_by([colored(str(c), colors[c]) for c in l], 3, ' ')) for l in self.board]
+		b = self.group_by(b, 3, ' ' * len(b[0]))
+		return '\n'.join(b)
 
 	def network_format(self):
 		return ' '.join([' '.join([str(c) for c in l]) for l in self.board])
 
+	
 
 
 

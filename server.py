@@ -93,6 +93,8 @@ class Game(object):
         px, py, rx, ry, r = message[0].split(" ")
         if self.board.make_move(int(px), int(py), player.piece, int(rx), int(ry), r):
             self.player_timeout.cancel()
+            self.send_message_to_players(['PLAYER_MOVED', self.active_player.name, self.board.network_format()])
+
             winners = self.board.get_winners()
             if len(winners):
                 self.send_message_to_players(['GAME_OVER'] + [self.players[p-1].name for p in winners])       
