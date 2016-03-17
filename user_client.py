@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(description='User pentago client.')
 parser.add_argument("host", type=str, help="Host of pentago server")
 parser.add_argument("port", type=int, help="Port of pentago server")
 parser.add_argument("name", type=str, help="Player name")
-parser.add_argument("game_id", type=str, help="game_id to join")
+parser.add_argument("room_id", type=str, help="room_id to join")
 
 args = parser.parse_args()
 
@@ -17,8 +17,8 @@ logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d %I:%M:%S %p
 
 
 class UserClient(base_client.BaseClient):
-	def __init__(self, host, port, name, game_id):
-		super(UserClient, self).__init__(host, port, name, game_id)
+	def __init__(self, host, port, name, room_id):
+		super(UserClient, self).__init__(host, port, name, room_id)
 
 	def handle_message(self, action, message):
 		print "Received %s %s" % (action, message)
@@ -56,7 +56,7 @@ class UserClient(base_client.BaseClient):
 				rx, ry = raw_input(text).split(',')
 				x = int(rx)
 				y = int(ry)
-			except:
+			except ValueError:
 				pass
 		return x, y
 
@@ -71,13 +71,13 @@ class UserClient(base_client.BaseClient):
 
 	def get_move(self):
 		px, py = self.get_point(9, "Where do you want to drop a stone? (x, y): ")
-		rx, ry = self.get_point(9, "Where do you want to rotate? (x, y):")
+		rx, ry = self.get_point(3, "Where do you want to rotate? (x, y):")
 		r = None
 		while not r in ['l', 'r']:
 			r = raw_input("What direction do you to rotate? (l or r): ")  
 		self.send_message(["PLAY" , "%s %s %s %s %s" % (px, py, rx, ry, r)])
 
 
-client = UserClient(args.host, args.port, args.name, args.game_id)
+client = UserClient(args.host, args.port, args.name, args.room_id)
 client.connect()
 client.wait_for_messages()

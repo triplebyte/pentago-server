@@ -8,6 +8,7 @@ import logging
 import argparse
 import traceback
 import random
+import itertools
 
 import pentago_board
 
@@ -17,7 +18,9 @@ logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d %I:%M:%S %p
 parser = argparse.ArgumentParser(description='Pentago server.')
 parser.add_argument("port", type=int, help="Port on which to listen for connections")
 parser.add_argument("player_count", type=int, help="Number of players")
-parser.add_argument("move_time", type=int, help="Time per move in seconds")
+parser.add_argument("--move_time", "-t", type=int, default=60, help="Time per move in seconds")
+parser.add_argument("--iterations", "-i", type=int, default=1, help="Play through this many permutations of player play order before stopping")
+
 
 args = parser.parse_args()
 
@@ -30,19 +33,20 @@ class Player(object):
     def send_message(self, message):
         self.connection.transport.write('\n'.join(message) + '\n\n')
 
-
-class Game(object):
-    def __init__(self, game_id, player_count):
-        self.game_id = game_id 
+class Room(object):
+    def __init__(self, room_id, player_count):
+        self.room_id = room_id 
         self.player_count = player_count
         self.players = []
         self.active_player = None
+        self.permutations = None
+        self.games_played = 0
 
     def add_player(self, player):
         assert len(self.players) <  self.player_count 
         assert not player.name in [p.name for p in self.players], "Name is not unique"
         self.players.append(player)
-        logging.info("Player %s joined game %s (%d out of %d)" % (player.name, self.game_id, len(self.players), self.player_count))
+        logging.info("Player %s joined room %s (%d out of %d)" % (player.name, self.room_id, len(self.players), self.player_count))
 
     def remove_player(self, player):
         if player in self.players: 
@@ -52,10 +56,12 @@ class Game(object):
             #We removed the current active player. Move back, so on next timeout the correct next player will play  
             if self.active_player == player and len(self.players) > 0:
                 self.active_player = self.players[i - 1]
-
+    # def start_games(self):
+    #     self.permutations = itertools.permutations
+    #     self.start_next_game()       
              
     def start_game(self):
-        logging.info("Game %s starting" % (self.game_id))
+        logging.info("Game %s starting" % (self.room_id))
         
         self.board = pentago_board.PentagoBoard(3, 3, 5)
 
@@ -109,7 +115,7 @@ class Game(object):
                 self.advance_player()
 
         else:
-            player.send_message(["BAD_MOVE"])
+            player.send_message(["BAD_MOVE", str(args.move_time), self.board.network_format()])
 
 
     def message_recieved(self, action, message, player):
@@ -119,24 +125,24 @@ class Game(object):
 
 class Manager(object):
     def __init__(self):
-        self.games = {}
+        self.rooms = {}
 
-    def game_for_id(self, game_id):
-        if not game_id in self.games:
-            logging.info("Creating game with game_id %s" % game_id)
-            self.games[game_id] = Game(game_id, args.player_count) 
-        return self.games[game_id]
+    def room_for_id(self, room_id):
+        if not room_id in self.rooms:
+            logging.info("Creating room with room_id %s" % room_id)
+            self.rooms[room_id] = Room(room_id, args.player_count) 
+        return self.rooms[room_id]
     
-    def add_player_to_game(self, player, game):
-        game.add_player(player)
-        if len(game.players) == game.player_count:
-            game.start_game()
+    def add_player_to_room(self, player, room):
+        room.add_player(player)
+        if len(room.players) == room.player_count:
+            room.start_game()
 
-    def remove_player_from_game(self, player, game): 
-        game.remove_player(player)
-        if len(game.players) == 0:
-            logging.info("Deleting game %s" %game.game_id)
-            del self.games[game.game_id]
+    def remove_player_from_room(self, player, room): 
+        room.remove_player(player)
+        if len(room.players) == 0:
+            logging.info("Deleting room %s" %room.room_id)
+            del self.rooms[room.room_id]
         
 manager = Manager()
 
@@ -148,14 +154,14 @@ class PentagoServer(basic.LineReceiver):
         print "Client joined: %s" % (self,)
         self.factory.clients.append(self)
         self.lines = []
-        self.game = None
+        self.room = None
         self.player = None
     
     def connectionLost(self, reason):
         print "Client left: %s" % (self,)    
         self.factory.clients.remove(self)
-        if self.game and self.player:
-            manager.remove_player_from_game(self.player, self.game) 
+        if self.room and self.player:
+            manager.remove_player_from_room(self.player, self.room) 
 
     def lineReceived(self, line):
         #end of message 
@@ -171,15 +177,15 @@ class PentagoServer(basic.LineReceiver):
 
     def message_recieved(self, action, message):
         logging.debug("message_recieved %s %s" % (action, message))  
-        if not self.player or not self.game :
+        if not self.player or not self.room :
             assert action == "JOIN" and len(message) == 2, "Bad join message"
             player_name = message[0]
-            game_id = message[1]
+            room_id = message[1]
             self.player = Player(player_name, self)
-            self.game = manager.game_for_id(game_id)
-            manager.add_player_to_game(self.player, self.game)
+            self.room = manager.room_for_id(room_id)
+            manager.add_player_to_room(self.player, self.room)
         else: 
-            self.game.message_recieved(action, message, self.player) 
+            self.room.message_recieved(action, message, self.player) 
 
 
 

@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(description='Random pentago client.')
 parser.add_argument("host", type=str, help="Host of pentago server")
 parser.add_argument("port", type=int, help="Port of pentago server")
 parser.add_argument("name", type=str, help="Player name")
-parser.add_argument("game_id", type=str, help="game_id to join")
+parser.add_argument("room_id", type=str, help="room_id to join")
 
 args = parser.parse_args()
 
@@ -16,8 +16,8 @@ logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d %I:%M:%S %p
 
 
 class RandomClient(base_client.BaseClient):
-	def __init__(self, host, port, name, game_id):
-		super(RandomClient, self).__init__(host, port, name, game_id)
+	def __init__(self, host, port, name, room_id):
+		super(RandomClient, self).__init__(host, port, name, room_id)
 
 	def handle_message(self, action, message):
 		print "Received %s %s" % (action, message)
@@ -36,6 +36,6 @@ class RandomClient(base_client.BaseClient):
 
 
 
-client = RandomClient(args.host, args.port, args.name, args.game_id)
+client = RandomClient(args.host, args.port, args.name, args.room_id)
 client.connect()
 client.wait_for_messages()
