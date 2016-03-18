@@ -1,9 +1,9 @@
 import logging
 import argparse
-import pentago_board
+import lib.pentago_board
 import random
 
-import base_client 
+import lib.base_client 
 parser = argparse.ArgumentParser(description='Random pentago client.')
 parser.add_argument("host", type=str, help="Host of pentago server")
 parser.add_argument("port", type=int, help="Port of pentago server")
@@ -15,7 +15,7 @@ args = parser.parse_args()
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d %I:%M:%S %p', level=logging.DEBUG)
 
 
-class RandomClient(base_client.BaseClient):
+class RandomClient(lib.base_client.BaseClient):
 	def __init__(self, host, port, name, room_id):
 		super(RandomClient, self).__init__(host, port, name, room_id)
 
@@ -25,7 +25,7 @@ class RandomClient(base_client.BaseClient):
 			self.make_move(message)
 
 	def make_move(self, message):
-		board = pentago_board.PentagoBoard(3, 3, 5)
+		board = lib.pentago_board.PentagoBoard(3, 3, 5)
 		board.set_from_array([int (c) for c  in message[1].split(' ')])
 		moves = [(x, y) for x in range(9) for y in range(9) if board.board[y][x] == 0]
 		random.shuffle(moves)

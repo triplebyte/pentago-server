@@ -1,10 +1,10 @@
 import logging
 import argparse
-import pentago_board
+import lib.pentago_board
 import random
 import os
 
-import base_client 
+import lib.base_client 
 parser = argparse.ArgumentParser(description='User pentago client.')
 parser.add_argument("host", type=str, help="Host of pentago server")
 parser.add_argument("port", type=int, help="Port of pentago server")
@@ -16,7 +16,7 @@ args = parser.parse_args()
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d %I:%M:%S %p', level=logging.DEBUG)
 
 
-class UserClient(base_client.BaseClient):
+class UserClient(lib.base_client.BaseClient):
 	def __init__(self, host, port, name, room_id):
 		super(UserClient, self).__init__(host, port, name, room_id)
 
@@ -45,7 +45,7 @@ class UserClient(base_client.BaseClient):
 
 	def player_moved(self, message):
 		os.system('clear')
-		board = pentago_board.PentagoBoard(3, 3, 5)
+		board = lib.pentago_board.PentagoBoard(3, 3, 5)
 		board.set_from_array([int (c) for c  in message[1].split(' ')])
 		print board
 
@@ -61,7 +61,7 @@ class UserClient(base_client.BaseClient):
 		return x, y
 
 	def make_move(self, message):
-		board = pentago_board.PentagoBoard(3, 3, 5)
+		board = lib.pentago_board.PentagoBoard(3, 3, 5)
 		board.set_from_array([int (c) for c  in message[1].split(' ')])
 		duration = int(message[0])
 		os.system('clear')

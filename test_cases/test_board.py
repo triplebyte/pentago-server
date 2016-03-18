@@ -1,15 +1,16 @@
 import unittest
 import math
 import copy
-import pentago_board
+import lib.pentago_board
 import random
+
 
 class TestGroupExtractor(unittest.TestCase):
     def setUp(self):
         pass
     
     def test_ranges(self):
-        game = pentago_board.PentagoBoard(3, 3, 5)
+        game = lib.pentago_board.PentagoBoard(3, 3, 5)
         assert not game.make_move(-1, 0, 1, 0, 0, 'r')
         assert not game.make_move(0, 0, 1, 30, 0, 'r')
         assert not game.make_move(0, 0, 1, 0, 0, 'p')
@@ -30,7 +31,7 @@ class TestGroupExtractor(unittest.TestCase):
         assert game2.board == game.board
 
     def test_win(self):
-        game = pentago_board.PentagoBoard(3, 3, 5)
+        game = lib.pentago_board.PentagoBoard(3, 3, 5)
         assert game.get_winners() == set()
         game.board[0][0] = 1
         game.board[0][1] = 1
@@ -66,7 +67,7 @@ class TestGroupExtractor(unittest.TestCase):
         assert game.get_winners() == set([1, 2, 3, 4])
 
     def test_full(self):
-        game = pentago_board.PentagoBoard(3, 3, 5)
+        game = lib.pentago_board.PentagoBoard(3, 3, 5)
         assert not game.is_full()
         for i in range(81):
             game.board[i / 9][i % 9] = random.choice([1,2,3,4])
