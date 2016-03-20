@@ -6,7 +6,7 @@ We live in heady times. AI and machine learning are advancing at an incredible r
 
 Pentago XL
 ----------
-Pentago XL is a four-player extension of the game Pentago. The board is 9x9, and composed of 9 different individually rotating 3x3 tiles. Players take turns placing a colored stone on the board, and rotating one of the 9 tiles by 90 degrees. The game is over when any player has 5 pieces in a row. It is worth noting that the size of the board (9x9) and number of potential rotations (18) give the Pentago XL game tree a higher branching factor than Go! Take that DeepMind!
+[Pentago XL](https://boardgamegeek.com/boardgame/21012/pentago-xl) is a four-player extension of the game [Pentago](https://en.wikipedia.org/wiki/Pentago). The board is 9x9, and composed of 9 different individually rotating 3x3 tiles. Players take turns placing a colored stone on the board, and rotating one of the 9 tiles by 90 degrees. The game is over when any player has 5 pieces in a row. It is worth noting that the size of the board (9x9) and number of potential rotations (18) give the Pentago XL game tree a higher branching factor than Go! Take that DeepMind!
 
 
 The Server
