@@ -1,9 +1,9 @@
 import logging
-import socket 
+import socket
 
 class BaseClient(object):
 	def __init__(self, host, port, name, game_id):
-		self.host = host 
+		self.host = host
 		self.port = port
 		self.name = name
 		self.game_id = game_id
@@ -17,7 +17,7 @@ class BaseClient(object):
 		self.send_message(['JOIN', self.name, self.game_id])
 		logging.debug("Sent!")
 
-	def wait_for_messages(self): 
+	def wait_for_messages(self):
 		lines = []
 		for line in self.socket.makefile():
 			if len(line.strip()) == 0:
@@ -27,8 +27,8 @@ class BaseClient(object):
 			else:
 				lines.append(line.strip())
 
-	def send_message(self, message): 
+	def send_message(self, message):
 		self.socket.send('\n'.join(message) + '\n\n')
 
 	def handle_message(self, action, message):
-		pass 
+		pass

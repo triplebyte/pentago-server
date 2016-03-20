@@ -1,5 +1,5 @@
-import logging 
-import copy 
+import logging
+import copy
 from termcolor import colored
 
 
@@ -26,7 +26,7 @@ class PentagoBoard(object):
 		return winners
 
 	def in_range(self, x, y):
-		return y >= 0 and y < len(self.board) and x >= 0 and x < len(self.board[0])  
+		return y >= 0 and y < len(self.board) and x >= 0 and x < len(self.board[0])
 
 	def get_winner_at_loc(self, x, y):
 		if not self.board[y][x]:
@@ -37,16 +37,16 @@ class PentagoBoard(object):
 				yp = y + i*yd
 				if not self.in_range(xp, yp) or self.board[yp][xp] != self.board[y][x]:
 					break
-			else: # Boom! Use of python else on for loop! 
+			else: # Boom! Use of python else on for loop!
 				return self.board[y][x]
 		return None
-	
+
 	def block_in_range(self, x, y):
 		return x >= 0 and x < self.block_width and y >= 0 and y < self.block_width
 
 
 	def make_move(self, piece_x, piece_y, player, block_x, block_y, rotation):
-		""" Make a move on the board. block_x/y are the coordinates of the block to rotate. piece_x/y are the piece to place""" 
+		""" Make a move on the board. block_x/y are the coordinates of the block to rotate. piece_x/y are the piece to place"""
 		if not self.block_in_range(block_x, block_y):
 			logging.warn("Bad block coordinate: (%s, %s)" % (block_x, block_y))
 			return False
@@ -54,26 +54,26 @@ class PentagoBoard(object):
 		if not self.in_range(piece_x, piece_y):
 			logging.warn("Bad piece coordinate: (%s, %s)" % (piece_x, piece_y))
 			return False
-		
-		if self.board[piece_y][piece_x]: 
+
+		if self.board[piece_y][piece_x]:
 			logging.warn("Trying to place in non-empty spot: (%s, %s)" % (piece_x, piece_y))
 			return False
-		
+
 		if not rotation in ['r', 'l']:
 			logging.warn("Bad rotation value: %s" % (rotation,))
 			return False
 
-		self.board[piece_y][piece_x] = player 
+		self.board[piece_y][piece_x] = player
 		self.do_rotation(block_x, block_y, rotation)
-		return True 
-	
+		return True
+
 	def do_rotation(self, block_x, block_y, rotation):
 		board = copy.deepcopy(self.board)
 		for y in range(self.block_width):
 			for x in range(self.block_width):
 				ox = self.block_width * block_x
 				oy = self.block_width * block_y
-	
+
 				if rotation == 'r':
 					dx = y
 					dy = (self.block_width - 1 - x)
@@ -81,9 +81,9 @@ class PentagoBoard(object):
 					dx = (self.block_width - 1 - y)
 					dy = x
 				self.board[oy + y][ox + x] = board[oy + dy][ox + dx]
-	
+
 	def is_full(self):
-		return not any([0 in l for l in self.board]) 
+		return not any([0 in l for l in self.board])
 
 	def group_by(self, array, n, separator):
 		rtn = array[0:n]
@@ -94,14 +94,30 @@ class PentagoBoard(object):
 
 	def __str__(self):
 		colors = {0: 'grey', 1:'red', 2:'green', 3:'yellow', 4:'blue'}
-		b = [' '.join(self.group_by([colored(str(c), colors[c]) for c in l], 3, ' ')) for l in self.board]
+		b = [' '.join(self.group_by([colored(str(c), colors[c]) if c else str(c) for c in l], 3, ' ')) for l in self.board]
 		b = self.group_by(b, 3, ' ' * len(b[0]))
 		return '\n'.join(b)
 
 	def network_format(self):
 		return ' '.join([' '.join([str(c) for c in l]) for l in self.board])
 
-	
+	def render_html(self):
+		colors = {0:'black', 1:'red', 2:'green', 3:'blue', 4:'purple'}
+		rtn = "<p><table>"
+		for y, row in enumerate(self.board):
+			if y > 0 and y % 3 == 0:
+				rtn += "<tr>" + "<td></td>" * 9 + "</tr>"
+			line = "<tr>"
+			for x, cell in enumerate(row):
+				if x > 0 and x % 3 == 0:
+					line += "<td></td>"
+				line += "<td style='width:20px; color:%s'>%s</td>" % (colors[cell], cell)
+			line += "</tr>"
+			rtn += line
+		rtn += "</table></p>"
+		return rtn
+
+
 
 
 

@@ -4,7 +4,7 @@ import lib.pentago_board
 import random
 import os
 
-import lib.base_client 
+import lib.base_client
 parser = argparse.ArgumentParser(description='User pentago client.')
 parser.add_argument("host", type=str, help="Host of pentago server")
 parser.add_argument("port", type=int, help="Port of pentago server")
@@ -39,10 +39,6 @@ class UserClient(lib.base_client.BaseClient):
 		elif action == "GAME_OVER":
 			print "Game is over! Winners: %s" % (message)
 
-		elif action == "GAME_DRAW":
-			print "Game is a draw!"
-
-
 	def player_moved(self, message):
 		os.system('clear')
 		board = lib.pentago_board.PentagoBoard(3, 3, 5)
@@ -74,7 +70,7 @@ class UserClient(lib.base_client.BaseClient):
 		rx, ry = self.get_point(3, "Where do you want to rotate? (x, y):")
 		r = None
 		while not r in ['l', 'r']:
-			r = raw_input("What direction do you to rotate? (l or r): ")  
+			r = raw_input("What direction do you to rotate? (l or r): ")
 		self.send_message(["PLAY" , "%s %s %s %s %s" % (px, py, rx, ry, r)])
 
 
