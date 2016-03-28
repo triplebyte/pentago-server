@@ -22,10 +22,20 @@ logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d %I:%M:%S %p
 class WrapperClient(lib.base_client.BaseClient):
 	def __init__(self, host, port, name, room_id):
 		super(WrapperClient, self).__init__(host, port, name, room_id)
+		self.num_players = -1
+		self.your_symbol = -1
 
 	def handle_message(self, action, message):
 		print "Got message %s %s" % (action, message)
-		if action == "MAKE_MOVE":
+		if action == "GAME_STARTED":
+			print "Game started"
+			for l in message:
+				i, name = l.split(' ', 1)
+				if name == self.name:
+					self.your_symbol = i
+			self.num_players = len(message)
+
+		elif action == "MAKE_MOVE":
 			self.make_move(message)
 		elif action == "BAD_MOVE":
 			print "Bad move!"
@@ -34,7 +44,7 @@ class WrapperClient(lib.base_client.BaseClient):
 	def make_move(self, message):
 		duration = int(message[0])
 		board = message[1]
-		proc = subprocess.Popen("%s %s" % (args.command, duration), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+		proc = subprocess.Popen("%s %s %s %s" % (args.command, duration, self.num_players, self.your_symbol), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 		move = proc.communicate(board+"\n")[0].strip()
 		print "Got move",  move
 		self.send_message(["PLAY" , move])
