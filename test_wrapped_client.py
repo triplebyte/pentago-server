@@ -9,5 +9,8 @@ num_players = sys.argv[2]
 #your symbol 
 you = sys.argv[3]
 
-l = sys.stdin.readline()
+#the board! 
+board = sys.stdin.readline()
+
+#great move! 
 print "1 1 2 2 r"
