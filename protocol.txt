@@ -57,7 +57,7 @@ This message is sent (server to client) when the server had rejected a client's 
 PLAY
 $x $y $rx $rx $rotation
 
-This message is sent from a client to the server to make a move. All the params are white-space separated, on a single line. $x ans $y are the location at which to drop a stone (before any rotations have been applied) 0 <= $x,$y <= 8. $rx and $rx are the coordinates of the tile to rotate. All coordinates use the top left as origin. 0 <= $rx,$ry <= 2. $rotation is either the character "r" or "l". "r" specifies a right or clockwise rotation, while "l" is a left of counterclockwise rotation.
+This message is sent from a client to the server to make a move. All the params are white-space separated, on a single line. $x and $y are the location at which to drop a stone (before any rotations have been applied) 0 <= $x, $y <= 8. $rx and $ry are the coordinates of the tile to rotate. All coordinates use the top left as origin. 0 <= $rx, $ry <= 2. $rotation is either the character "r" or "l". "r" specifies a right or clockwise rotation, while "l" is a left of counterclockwise rotation.
 
 
 PLAYER_MOVED
@@ -77,4 +77,4 @@ GAME_OVER
 $winner1
 $winner1
 
-This message is sent to the client when the game is over. One winner parameters will be present for every player how finished the game with at least 5 stones in a row. In the case of a draw, there will be no winner parameters.
+This message is sent to the client when the game is over. One winner parameter will be present for every player who finished the game with at least 5 stones in a row. In the case of a draw, there will be no winner parameters.
