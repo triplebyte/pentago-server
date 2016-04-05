@@ -10,6 +10,9 @@ class PentagoBoard(object):
 		self.winning_length = winning_length
 		dim = block_width * block_count
 		self.board = [[0]*dim for _ in range(dim)]
+		self.last_play = (-1, -1)
+		self.last_rotation = (-1, -1, 'r')
+		
 
 	def set_from_array(self, array):
 		dim = self.block_width * self.block_count
@@ -65,6 +68,24 @@ class PentagoBoard(object):
 
 		self.board[piece_y][piece_x] = player
 		self.do_rotation(block_x, block_y, rotation)
+
+		
+		block_width = self.block_width
+		if (piece_x/3, piece_y/3) == (block_x, block_y):
+			ox, bx = (piece_x/block_width)*block_width, piece_x%block_width
+			oy, by = (piece_y/block_width)*block_width, piece_y%block_width
+			if rotation == 'l':
+				bx, by = by, block_width - 1 - bx
+			else:
+				bx, by =  block_width - 1 - by, bx
+			piece_x = ox + bx
+			piece_y = oy + by
+
+		self.last_play = (piece_x, piece_y)
+		self.last_rotation = (block_x, block_y, rotation)
+
+
+
 		return True
 
 	def do_rotation(self, block_x, block_y, rotation):
@@ -103,7 +124,14 @@ class PentagoBoard(object):
 
 	def render_html(self):
 		colors = {0:'black', 1:'red', 2:'green', 3:'blue', 4:'purple'}
-		rtn = "<p><table>"
+		rtn = "<p><div style='position: relative; display: inline-block'><table>"
+
+		rotation_marker = ''
+		if self.last_rotation[0] >= 0:
+			l = '%s%%' % ((self.last_rotation[0]) * 33.3 + 33.3/2 - 4)
+			t = '%s%%' % ((self.last_rotation[1]) * 33.3 - 4)
+			rotation_marker = "<div style='position: absolute; left: %s; top: %s'>%s</div>" % (l, t, '&#8594;' if (self.last_rotation[2] == 'r') else '&#8592;')
+
 		for y, row in enumerate(self.board):
 			if y > 0 and y % 3 == 0:
 				rtn += "<tr>" + "<td></td>" * 9 + "</tr>"
@@ -111,10 +139,13 @@ class PentagoBoard(object):
 			for x, cell in enumerate(row):
 				if x > 0 and x % 3 == 0:
 					line += "<td></td>"
-				line += "<td style='width:20px; color:%s'>%s</td>" % (colors[cell], cell)
+
+				v = "<b>%s</b>" % (cell,) if self.last_play == (x, y) else cell
+				bgcolor = '#F9F9F9' if self.last_rotation[:2] == (x/3, y/3) else '#FFFFFF'
+				line += "<td style='width:20px; color:%s; background-color:%s; text-align: center'>%s</td>" % (colors[cell], bgcolor, v)
 			line += "</tr>"
 			rtn += line
-		rtn += "</table></p>"
+		rtn += "</table>%s</div></p>" % (rotation_marker,)
 		return rtn
 
 

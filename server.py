@@ -25,7 +25,7 @@ parser.add_argument("port", type=int, help="Port on which to listen for connecti
 parser.add_argument("player_count", type=int, help="Number of players")
 parser.add_argument("--move_time", "-t", type=int, default=60, help="Time per move in seconds")
 parser.add_argument("--iterations", "-i", type=int, default=1, help="Play through this many permutations of player play order before stopping")
-parser.add_argument("--http_port", type=int, default=80, help="Serve details on the active games over http on this port")
+parser.add_argument("--http_port", type=int, default=8080, help="Serve details on the active games over http on this port")
 
 args = parser.parse_args()
 

@@ -158,7 +158,7 @@ class Room(object):
         else:
             self.winning_counts["draws"] = self.winning_counts.get("draws", 0) + 1
 
-        self.start_game()
+        reactor.callLater(5.0, self.start_game)
 
     def message_recieved(self, action, message, player):
         if self.active_game and action == "PLAY":
@@ -171,11 +171,13 @@ class Room(object):
 
     def render_players(self):
         rtn = "<p><p><b>Players:</b></p><table>"
-        for p in self.players:
-            rtn += "<tr><td>%s</td><td>%s</td></tr>" % (p.piece, p.name)
+        for p in sorted(self.players, key=lambda p:p.piece):
+            name = "<b>%s</b>" % (p.name,) if (self.active_game and p == self.active_game.active_player) else p.name
+            rtn += "<tr><td>%s</td><td>%s</td></tr>" % (p.piece, name)
+
         rtn += "</table></p>"
         return rtn
-    def render_winns(self):
+    def render_wins(self):
         rtn = "<p><p><b>Win counts:</b></p><table>"
         for p in self.winning_counts:
             rtn += "<tr><td>%s</td><td>%s</td></tr>" % (self.winning_counts[p], p)
@@ -187,6 +189,6 @@ class Room(object):
         rtn += self.render_players()
         if self.active_game:
             rtn += self.active_game.board.render_html()
-        rtn += self.render_winns()
+        rtn += self.render_wins()
         return rtn
 
