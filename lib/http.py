@@ -9,7 +9,7 @@ class RoomDisplay(Resource):
 
     def render_GET(self, request):
         r = self.room.render()
-        meta = "<meta http-equiv=\"refresh\" content=\"3\">"
+        meta = "<meta http-equiv=\"refresh\" content=\"1\">"
         return "<html><head>%s<h1>Room %s</h1></head>%s</html>" % (meta, self.room.room_id, r)
 
 
