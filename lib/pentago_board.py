@@ -123,7 +123,7 @@ class PentagoBoard(object):
 		return ' '.join([' '.join([str(c) for c in l]) for l in self.board])
 
 	def render_html(self):
-		colors = {0:'black', 1:'red', 2:'green', 3:'blue', 4:'purple'}
+		colors = {0:'black', 1:'red', 2:'green', 3:'blue', 4:'purple', 5:'orange'}
 		rtn = "<p><div style='position: relative; display: inline-block'><table>"
 
 		rotation_marker = ''
