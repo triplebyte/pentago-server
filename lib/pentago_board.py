@@ -12,7 +12,7 @@ class PentagoBoard(object):
 		self.board = [[0]*dim for _ in range(dim)]
 		self.last_play = (-1, -1)
 		self.last_rotation = (-1, -1, 'r')
-		
+
 
 	def set_from_array(self, array):
 		dim = self.block_width * self.block_count
@@ -69,7 +69,7 @@ class PentagoBoard(object):
 		self.board[piece_y][piece_x] = player
 		self.do_rotation(block_x, block_y, rotation)
 
-		
+
 		block_width = self.block_width
 		if (piece_x/3, piece_y/3) == (block_x, block_y):
 			ox, bx = (piece_x/block_width)*block_width, piece_x%block_width
@@ -114,7 +114,7 @@ class PentagoBoard(object):
 		return rtn
 
 	def __str__(self):
-		colors = {0: 'grey', 1:'red', 2:'green', 3:'yellow', 4:'blue'}
+		colors = {0: 'grey', 1:'red', 2:'green', 3:'yellow', 4:'blue', 5:'orange'}
 		b = [' '.join(self.group_by([colored(str(c), colors[c]) if c else str(c) for c in l], 3, ' ')) for l in self.board]
 		b = self.group_by(b, 3, ' ' * len(b[0]))
 		return '\n'.join(b)
